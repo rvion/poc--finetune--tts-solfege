@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Solfège STT — reconnaissance de notes (do ré mi fa sol la si)</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>🎵 Solfège&nbsp;STT</h1>
+    <p class="sub">Un petit classifieur audio entraîné sur du TTS reconnaît les notes
+      <strong>do&nbsp;ré&nbsp;mi&nbsp;fa&nbsp;sol&nbsp;la&nbsp;si</strong> — parlées ou tenues —
+      et ignore le reste (« euh… », « ah non… ») comme du bruit.</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="row">
+        <button id="mic" class="primary">🎤 Écouter le micro</button>
+        <button id="stop" disabled>■ Stop</button>
+        <span id="status" class="status">modèle non chargé…</span>
+      </div>
+      <div class="live">
+        <div class="label">Note détectée</div>
+        <div id="current" class="current">—</div>
+        <div id="bars" class="bars"></div>
+      </div>
+      <div class="transcript-wrap">
+        <div class="label">Transcription (notes uniquement)</div>
+        <div id="transcript" class="transcript"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Tester sans micro</h2>
+      <p class="hint">Échantillons synthétisés (espeak-ng) — cliquez pour les jouer et les faire reconnaître.</p>
+      <div id="samples" class="samples"></div>
+    </section>
+
+    <section class="card meta">
+      <h2>Comment ça marche</h2>
+      <ol>
+        <li>Le micro est découpé en fenêtres de 1&nbsp;s (pas de 250&nbsp;ms).</li>
+        <li>Chaque fenêtre → log-mel (<code>features.js</code>, miroir exact du Python).</li>
+        <li>Un CNN (~150k params, <code>model.onnx</code>) prédit 8 classes : 7 notes + bruit.</li>
+        <li>Les prédictions consécutives sont fusionnées, le bruit est jeté → suite de notes.</li>
+      </ol>
+      <p id="metrics" class="hint"></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>POC — <a href="https://github.com/rvion/poc--finetune--tts-solfege">rvion/poc--finetune--tts-solfege</a>.
+    Entraînement 100&nbsp;% synthétique (TTS). Précision mesurée sur voix TTS tenues à l'écart.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/ort.min.js"></script>
+  <script src="features.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

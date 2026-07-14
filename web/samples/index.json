@@ -1,0 +1,22 @@
+[
+  {
+    "label": "Gamme lente : do ré mi fa sol la si",
+    "file": "scale_slow.wav"
+  },
+  {
+    "label": "Gamme rapide",
+    "file": "scale_fast.wav"
+  },
+  {
+    "label": "Notes tenues : dooo rééé miii faaa",
+    "file": "held_notes.wav"
+  },
+  {
+    "label": "Parasites : « euh… ah non… » (→ ignoré)",
+    "file": "garbage.wav"
+  },
+  {
+    "label": "Mélange : do ré (euh) mi sol",
+    "file": "mixed.wav"
+  }
+]

@@ -1,0 +1,12 @@
+# Déploiement Cloudflare Pages (site statique -> https://<projet>.pages.dev).
+#
+# Déploiement manuel :
+#   npx wrangler pages deploy web --project-name solfege-stt
+# (nécessite `wrangler login` ou les variables CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID)
+#
+# Le dossier publié est `web/` : index.html, app.js, features.js, style.css,
+# model.onnx, labels.json, samples/. Tout est statique — aucune étape de build.
+
+name = "solfege-stt"
+compatibility_date = "2024-07-01"
+pages_build_output_dir = "web"

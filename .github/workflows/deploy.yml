@@ -1,0 +1,24 @@
+name: Déploiement Cloudflare Pages (.pages.dev)
+
+on:
+  push:
+    branches: ["main", "claude/solfege-speech-recognition-jg97rv"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Ne se lance que si les secrets Cloudflare sont configurés dans le dépôt.
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' ||
+          github.ref == 'refs/heads/main' ||
+          github.ref == 'refs/heads/claude/solfege-speech-recognition-jg97rv' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publier web/ sur Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy web --project-name=solfege-stt

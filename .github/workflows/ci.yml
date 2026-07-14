@@ -1,0 +1,36 @@
+name: CI — tests (features, TTS, accuracy >= 99%)
+
+on:
+  push:
+    branches: ["main", "claude/solfege-speech-recognition-jg97rv"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer espeak-ng (TTS)
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends espeak-ng
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installer les dépendances Python (torch CPU)
+        run: |
+          python -m pip install --upgrade pip
+          pip install --index-url https://download.pytorch.org/whl/cpu torch
+          pip install numpy scipy onnx onnxruntime onnxscript pytest
+
+      - name: Vérifier la parité features + TTS
+        run: pytest tests/test_features.py tests/test_tts.py -v
+
+      - name: Vérifier le modèle livré (>= 99 % sur TTS frais)
+        run: pytest tests/test_accuracy.py -v

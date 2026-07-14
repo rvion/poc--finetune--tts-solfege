@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+# artefacts d'entraînement (le modèle livré vit dans web/, pas ici)
+artifacts_smoke/
+artifacts_test/
+artifacts/*.pt
+*.log
+.DS_Store
+node_modules/

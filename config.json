@@ -1,0 +1,23 @@
+{
+  "_comment": "Source unique de vérité partagée Python (entraînement) et JS (démo navigateur). Toute modification ici doit garder la parité features Python<->JS (voir tests/test_features.py et web/features.js).",
+  "sample_rate": 16000,
+  "window_sec": 1.0,
+  "window_samples": 16000,
+  "preemphasis": 0.97,
+  "stft": { "n_fft": 512, "win_length": 400, "hop_length": 160 },
+  "mel": { "n_mels": 40, "fmin": 40.0, "fmax": 8000.0 },
+  "labels": ["do", "re", "mi", "fa", "sol", "la", "si", "_noise_"],
+  "note_labels": ["do", "re", "mi", "fa", "sol", "la", "si"],
+  "noise_label": "_noise_",
+  "display": {
+    "do": "Do",
+    "re": "Ré",
+    "mi": "Mi",
+    "fa": "Fa",
+    "sol": "Sol",
+    "la": "La",
+    "si": "Si",
+    "_noise_": "—"
+  },
+  "accuracy_target": 0.99
+}

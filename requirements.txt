@@ -1,0 +1,8 @@
+# Dépendances Python (entraînement + tests). PyTorch en version CPU suffit.
+numpy>=1.24
+scipy>=1.10
+torch>=2.1
+onnx>=1.15
+onnxruntime>=1.16
+onnxscript>=0.1
+pytest>=7.4

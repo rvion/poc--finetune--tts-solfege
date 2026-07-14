@@ -1,0 +1,141 @@
+<style>
+  :root{--bg:#0f1220;--card:#1a1e33;--fg:#e7e9f3;--muted:#9aa0bf;--accent:#7c9cff;--hot:#ffd166;--note:#64e6a0;--border:#2a2f4d;}
+  *{box-sizing:border-box;}
+  .sf-wrap{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--fg);
+    background:radial-gradient(1200px 600px at 50% -10%,#20264a 0%,var(--bg) 60%);min-height:100vh;
+    margin:0;padding:0 0 3rem;line-height:1.5;}
+  .sf-wrap h1{margin:0;font-size:2rem;} .sf-head{text-align:center;padding:2rem 1rem 1rem;}
+  .sf-sub{color:var(--muted);max-width:620px;margin:.6rem auto 0;}
+  .sf-main{max-width:720px;margin:0 auto;padding:1rem;display:grid;gap:1rem;}
+  .sf-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.2rem 1.3rem;}
+  .sf-row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;}
+  .sf-wrap button{font:inherit;color:var(--fg);background:#252a47;border:1px solid var(--border);
+    border-radius:10px;padding:.55rem .9rem;cursor:pointer;transition:.15s;}
+  .sf-wrap button:hover:not(:disabled){border-color:var(--accent);}
+  .sf-wrap button:disabled{opacity:.45;cursor:default;}
+  .sf-wrap button.primary{background:var(--accent);color:#0b0e1c;font-weight:600;border-color:var(--accent);}
+  .sf-status{color:var(--muted);font-size:.9rem;margin-left:auto;}
+  .sf-label{color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;margin-top:1rem;}
+  .sf-live{text-align:center;}
+  .sf-current{font-size:4rem;font-weight:700;min-height:5rem;line-height:1.2;color:var(--muted);transition:.1s;}
+  .sf-current.active{color:var(--note);text-shadow:0 0 24px rgba(100,230,160,.4);}
+  .sf-bars{display:flex;gap:6px;align-items:flex-end;height:90px;justify-content:center;margin-top:.5rem;}
+  .sf-bar{width:34px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+  .sf-bar .fill{width:100%;background:#33406e;border-radius:4px 4px 0 0;transition:height .1s;min-height:2px;}
+  .sf-bar .fill.hot{background:var(--hot);}
+  .sf-bar span{font-size:.68rem;color:var(--muted);text-align:center;margin-top:2px;}
+  .sf-transcript{min-height:3rem;background:#12152a;border:1px solid var(--border);border-radius:10px;
+    padding:.6rem;overflow-x:auto;white-space:nowrap;display:flex;gap:.4rem;align-items:center;margin-top:.5rem;}
+  .sf-note{background:var(--note);color:#093322;font-weight:700;padding:.25rem .6rem;border-radius:8px;font-size:1.1rem;}
+  .sf-hint{color:var(--muted);font-size:.88rem;}
+  .sf-foot{text-align:center;color:var(--muted);font-size:.82rem;padding:1.5rem 1rem;}
+  .sf-metrics{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:.4rem;}
+  .sf-metric{background:#12152a;border:1px solid var(--border);border-radius:10px;padding:.5rem .8rem;text-align:center;}
+  .sf-metric b{display:block;font-size:1.3rem;color:var(--note);}
+  .sf-metric span{font-size:.72rem;color:var(--muted);}
+</style>
+
+<div class="sf-wrap">
+  <div class="sf-head">
+    <h1>🎵 Solfège STT</h1>
+    <p class="sf-sub">Chantez ou dites les notes <b>do&nbsp;ré&nbsp;mi&nbsp;fa&nbsp;sol&nbsp;la&nbsp;si</b>
+      (parlées, rapides ou tenues « dooooo »). Le modèle transcrit les notes en temps réel et
+      ignore le reste (« euh… », « ah non… ») comme du bruit. 100&nbsp;% dans votre navigateur.</p>
+  </div>
+  <div class="sf-main">
+    <div class="sf-card">
+      <div class="sf-row">
+        <button id="sfMic" class="primary">🎤 Écouter le micro</button>
+        <button id="sfStop" disabled>■ Stop</button>
+        <span id="sfStatus" class="sf-status">chargement du modèle…</span>
+      </div>
+      <div class="sf-live">
+        <div class="sf-label">Note détectée</div>
+        <div id="sfCurrent" class="sf-current">—</div>
+        <div id="sfBars" class="sf-bars"></div>
+      </div>
+      <div class="sf-label">Transcription (notes uniquement)</div>
+      <div id="sfTranscript" class="sf-transcript"></div>
+    </div>
+    <div class="sf-card">
+      <div class="sf-label" style="margin-top:0">Le modèle en un coup d'œil</div>
+      <div class="sf-metrics" id="sfMetrics"></div>
+      <p class="sf-hint" style="margin-top:.8rem">Astuce : dites nettement « do … ré … mi … » en marquant
+        de petites pauses. Une note « tenue » longue est reconnue aussi. Si le micro ne s'active pas
+        ici, ouvrez cette page dans un onglet plein écran (le micro exige un contexte sécurisé).</p>
+    </div>
+  </div>
+  <div class="sf-foot">POC entraîné 100&nbsp;% sur voix synthétique (TTS espeak-ng). Reconnaît le
+    <i>nom</i> de la note, pas la hauteur chantée.</div>
+</div>
+
+<script>
+/* ===== features.js (miroir de features.py) inliné ===== */
+__FEATURES_JS__
+/* ===== nn.js (forward CNN, miroir de model.py) inliné ===== */
+__NN_JS__
+</script>
+<script>
+"use strict";
+const META = __META_JSON__;
+const METRICS = __METRICS_JSON__;
+const WEIGHTS_B64 = __WEIGHTS_JSON__;
+function b64f32(s){const bin=atob(s),buf=new ArrayBuffer(bin.length),by=new Uint8Array(buf);
+  for(let i=0;i<bin.length;i++)by[i]=bin.charCodeAt(i);return new Float32Array(buf);}
+const W={};for(const k in WEIGHTS_B64)W[k]=b64f32(WEIGHTS_B64[k]);
+
+function predict(wav){
+  const fs=featureStack(wav);                       // {data,nChannels,nMels,nFrames}
+  const {probs}=forwardProbs(fs.data,fs.nMels,fs.nFrames,W,META.labels.length);
+  let best=0;for(let i=1;i<probs.length;i++)if(probs[i]>probs[best])best=i;
+  return {label:META.labels[best],conf:probs[best],probs};
+}
+
+const $=id=>document.getElementById(id);
+const THRESH=0.6;
+function bars(probs){const box=$("sfBars");
+  if(box.children.length!==META.labels.length){box.innerHTML="";
+    META.labels.forEach(l=>{const d=document.createElement("div");d.className="sf-bar";
+      d.innerHTML='<div class="fill"></div><span>'+(META.display[l]==="—"?"bruit":META.display[l])+'</span>';
+      box.appendChild(d);});}
+  const mx=Math.max.apply(null,probs);
+  META.labels.forEach((l,i)=>{const f=box.children[i].querySelector(".fill");
+    f.style.height=Math.round(probs[i]*100)+"%";f.classList.toggle("hot",probs[i]===mx);});}
+let lastTok=null;
+function onPred(r){bars(r.probs);
+  const isNote=r.label!==META.noise_label&&r.conf>=THRESH;
+  $("sfCurrent").textContent=isNote?META.display[r.label]:"—";
+  $("sfCurrent").className="sf-current"+(isNote?" active":"");
+  const tok=isNote?r.label:META.noise_label;
+  if(tok===lastTok)return;
+  if(isNote){const s=document.createElement("span");s.className="sf-note";s.textContent=META.display[r.label];
+    $("sfTranscript").appendChild(s);$("sfTranscript").scrollLeft=$("sfTranscript").scrollWidth;}
+  lastTok=tok;}
+let actx=null,stream=null,proc=null,ring=null,rfill=0,sinceI=0;
+async function start(){
+  try{stream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1}});}
+  catch(e){$("sfStatus").textContent="micro indisponible : "+e.message+" — ouvrez la page en plein onglet.";return;}
+  actx=new (window.AudioContext||window.webkitAudioContext)({sampleRate:FEAT.sampleRate});
+  const src=actx.createMediaStreamSource(stream);
+  proc=actx.createScriptProcessor(2048,1,1);
+  ring=new Float32Array(FEAT.windowSamples);rfill=0;sinceI=0;lastTok=null;
+  const hop=Math.round(0.25*FEAT.sampleRate);
+  proc.onaudioprocess=e=>{const inp=e.inputBuffer.getChannelData(0),n=inp.length;
+    ring.copyWithin(0,n);ring.set(inp,ring.length-n);rfill=Math.min(ring.length,rfill+n);sinceI+=n;
+    if(sinceI>=hop&&rfill>=ring.length){sinceI=0;onPred(predict(ring.slice()));}};
+  src.connect(proc);proc.connect(actx.destination);
+  $("sfMic").disabled=true;$("sfStop").disabled=false;
+  $("sfStatus").textContent="écoute… chantez do ré mi fa sol la si";}
+function stop(){if(proc)proc.disconnect();if(stream)stream.getTracks().forEach(t=>t.stop());if(actx)actx.close();
+  $("sfMic").disabled=false;$("sfStop").disabled=true;$("sfStatus").textContent="arrêté";}
+$("sfMic").onclick=start;$("sfStop").onclick=stop;
+(function(){const m=$("sfMetrics");const items=[
+  ["Notes articulées",(METRICS.clean_accuracy*100).toFixed(1)+"%"],
+  ["Voix inconnues",(METRICS.heldout_voices_accuracy*100).toFixed(1)+"%"],
+  ["Bruit fort",(METRICS.hard_accuracy*100).toFixed(1)+"%"],
+  ["Paramètres","~150k"]];
+  items.forEach(([s,v])=>{const d=document.createElement("div");d.className="sf-metric";
+    d.innerHTML="<b>"+v+"</b><span>"+s+"</span>";m.appendChild(d);});})();
+bars(META.labels.map(()=>0));
+$("sfStatus").textContent="modèle chargé ✔ — cliquez « Écouter le micro »";
+</script>

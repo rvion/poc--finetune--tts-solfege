@@ -7,9 +7,10 @@ vocabulaire), pas de l'ASR généraliste. Le `do` aigu de fin de gamme = même c
 
 ## Chaîne de traitement
 ```
-audio 16 kHz ──► log-mel (40 × 98) ──► CNN (~150k params) ──► softmax 8 classes
-   fenêtre 1 s      features.py / .js        model.onnx           argmax + seuil
+audio 16 kHz ──► log-mel ⊕ Δ (2 × 40 × 98) ──► CNN (~150k params) ──► softmax 8 classes
+   fenêtre 1 s      features.py / .js               model.onnx           argmax + seuil
 ```
+Entrée à **2 canaux** : log-mel + sa dérivée temporelle Δ (transition/onset), cf. D10.
 
 ### Audio & features (`config.json`, source unique)
 - Échantillonnage **16 kHz**, fenêtre **1,0 s** (16000 échantillons).

@@ -52,4 +52,20 @@ référence `screenplay` déployait en fait sur **GitHub Pages** ; on garde ce m
 
 ## D9 — Modèle ONNX committé dans `web/`
 La démo doit marcher sans ré-entraîner et la CI doit vérifier l'artefact réellement livré.
-`web/model.onnx` (~0,6 Mo) est donc versionné ; `pytest` le charge et le teste sur du TTS frais.
+`web/model.onnx` (~0,7 Mo) est donc versionné ; `pytest` le charge et le teste sur du TTS frais.
+
+## D10 — Features à 2 canaux : log-mel ⊕ Δ (dérivée temporelle)
+Sans les deltas, les confusions résiduelles se concentraient sur des paires ne se distinguant
+que par l'**onset consonantique** (mi↔si = même voyelle « i », fa↔la = même « a »). Ajouter le
+canal Δ (transition temporelle) donne explicitement au modèle l'information d'attaque, ce qui a
+resserré ces confusions. Δ est une opération linéaire simple, **répliquée à l'identique en JS**
+(parité testée). *Écarté :* MFCC (moins lisible, parité plus fragile), features main-only.
+
+## D11 — Page autonome (inférence CNN en JS pur) en complément d'onnxruntime
+En plus de la démo `web/` (onnxruntime-web, pour un vrai hébergement), un script
+(`scripts/export_standalone.py` + `web/nn.js`) génère une **page HTML unique auto-contenue** :
+poids du CNN embarqués en base64, forward réimplémenté en JavaScript pur (miroir de `model.py`),
+**aucune dépendance externe**. Utile pour héberger la démo n'importe où sans CDN. La correction
+du forward JS pur est **vérifiée contre PyTorch** (`scripts/verify_standalone.mjs`, écart < 2e-3).
+*Contexte :* onnxruntime-web reste la voie principale (plus rapide, GPU/WASM) ; le JS pur est un
+filet « zéro dépendance ».

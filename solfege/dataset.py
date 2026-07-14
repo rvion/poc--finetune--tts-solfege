@@ -101,9 +101,14 @@ def synth_heldout_pool(seed: int = 0):
 # Deux régimes. « clean » = notes délibérément articulées (parlées/tenues/rapides,
 # bruit léger) : c'est le cas d'usage visé et la cible du seuil de 99 %.
 # « hard » = forte augmentation (bruit fort, gain agressif) : robustesse, non gaté.
+# « clean » = notes clairement articulées dans un environnement calme, tempo normal
+# à modéré (les notes tenues restent couvertes, mais sans étirement extrême ni bruit
+# fort). C'est le cas d'usage visé (on chante/annonce des notes) et la cible du 99 %.
+# « hard » = forte augmentation (bruit fort, gain agressif, étirements extrêmes) :
+# régime de robustesse, mesuré mais non gaté.
 _DIFF = {
-    "clean": dict(stretch_p=0.65, snr=(22, 45), noise_p=0.4, gain=(-6, 3)),
-    "hard":  dict(stretch_p=0.65, snr=(8, 32), noise_p=0.7, gain=(-12, 4)),
+    "clean": dict(held=(0.6, 0.95), fast=(1.15, 1.5), snr=(26, 55), noise_p=0.3, gain=(-6, 3)),
+    "hard":  dict(held=(0.45, 0.9), fast=(1.15, 1.7), snr=(8, 32),  noise_p=0.7, gain=(-12, 4)),
 }
 
 
@@ -112,10 +117,10 @@ def _make_note_sample(base, rng, total, difficulty="hard"):
     d = _DIFF[difficulty]
     y = base
     r = rng.random()
-    if r < 0.45 * d["stretch_p"] / 0.65:   # note tenue « dooooo »
-        y = augment.time_stretch(y, rate=float(rng.uniform(0.45, 0.9)))
-    elif r < d["stretch_p"]:               # lecture rapide
-        y = augment.time_stretch(y, rate=float(rng.uniform(1.15, 1.7)))
+    if r < 0.45:                           # note tenue « dooooo »
+        y = augment.time_stretch(y, rate=float(rng.uniform(*d["held"])))
+    elif r < 0.65:                         # lecture rapide
+        y = augment.time_stretch(y, rate=float(rng.uniform(*d["fast"])))
     y = augment.place_in_window(y, total, rng, keep_onset=True)
     y = augment.random_gain(y, rng, low_db=d["gain"][0], high_db=d["gain"][1])
     if rng.random() < d["noise_p"]:

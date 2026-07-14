@@ -18,7 +18,10 @@ poc--finetune--tts-solfege/
 │   └── infer.py            # classification + décodage en flux
 ├── scripts/
 │   ├── make_fixtures.py    # vecteurs de référence parité JS
-│   └── gen_samples.py      # extraits .wav de démo
+│   ├── gen_samples.py      # extraits .wav de démo
+│   ├── export_standalone.py + standalone_template.html  # page HTML auto-contenue
+│   ├── dump_verify_cases.py + verify_standalone.mjs      # vérif JS pur == PyTorch
+│   └── (web/nn.js = forward CNN en JS pur)
 ├── tests/
 │   ├── test_features.py    # features + parité Python↔JS (node)
 │   ├── test_tts.py         # espeak dispo, synthèse, vitesse

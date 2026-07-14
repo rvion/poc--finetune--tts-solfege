@@ -50,6 +50,13 @@ GARBAGE_WORDS = [
     "salut", "coucou", "ouais", "bof", "hop", "allez", "super", "génial", "zut",
     "comment", "pourquoi", "attention", "écoute", "regarde", "papa", "maman",
     "table", "chaise", "chien", "chat", "rouge", "bleu", "vite", "lent",
+    # plus de variété pour muscler la classe bruit (mots courants, onomatopées) :
+    "quatre", "cinq", "sept", "huit", "neuf", "dix", "zéro", "midi", "soir", "matin",
+    "voiture", "maison", "arbre", "fleur", "livre", "café", "eau", "pain", "porte",
+    "fenêtre", "soleil", "lune", "ciel", "terre", "route", "ville", "gauche", "droite",
+    "haut", "grand", "petit", "vert", "jaune", "noir", "blanc", "beaucoup", "assez",
+    "toujours", "jamais", "aujourd'hui", "demain", "hier", "bientôt", "presque",
+    "bravo", "chut", "pfff", "grr", "waouh", "hé", "oh là là", "tant pis", "ça va",
 ]
 
 

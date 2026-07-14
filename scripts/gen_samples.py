@@ -46,20 +46,20 @@ def main():
 
     # 1) gamme lente et claire
     scale = [trim_silence(synth(t, TTSParams("fr-fr", 150, 50), sr)) for _, t in notes]
-    y = concat(scale, 0.35, sr)
+    y = concat(scale, 0.8, sr)
     write_wav("scale_slow.wav", y, sr)
     index.append({"label": "Gamme lente : do ré mi fa sol la si", "file": "scale_slow.wav"})
 
     # 2) gamme rapide
     fast = [trim_silence(synth(t, TTSParams("it", 320, 55), sr)) for _, t in notes]
-    y = concat(fast, 0.08, sr)
+    y = concat(fast, 0.5, sr)
     write_wav("scale_fast.wav", y, sr)
     index.append({"label": "Gamme rapide", "file": "scale_fast.wav"})
 
     # 3) notes tenues « dooo rééé miii »
     held = [time_stretch(trim_silence(synth(t, TTSParams("fr-fr", 130, 48), sr)), 0.55)
             for _, t in notes[:4]]
-    y = concat(held, 0.15, sr)
+    y = concat(held, 0.7, sr)
     write_wav("held_notes.wav", y, sr)
     index.append({"label": "Notes tenues : dooo rééé miii faaa", "file": "held_notes.wav"})
 
@@ -78,7 +78,7 @@ def main():
         time_stretch(trim_silence(synth("mi", TTSParams("fr-fr", 140, 52), sr)), 0.6),
         trim_silence(synth("sol", TTSParams("fr-fr", 150, 50), sr)),
     ]
-    y = add_noise(concat(mix, 0.25, sr), 28, rng)
+    y = add_noise(concat(mix, 0.7, sr), 28, rng)
     write_wav("mixed.wav", y, sr)
     index.append({"label": "Mélange : do ré (euh) mi sol", "file": "mixed.wav"})
 

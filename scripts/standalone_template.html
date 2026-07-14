@@ -33,6 +33,9 @@
   .sf-metric{background:#12152a;border:1px solid var(--border);border-radius:10px;padding:.5rem .8rem;text-align:center;}
   .sf-metric b{display:block;font-size:1.3rem;color:var(--note);}
   .sf-metric span{font-size:.72rem;color:var(--muted);}
+  .sf-samples{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.5rem;margin-top:.5rem;}
+  .sf-sample{display:flex;flex-direction:column;align-items:flex-start;gap:.2rem;text-align:left;}
+  .sf-sample .name{font-weight:600;} .sf-sample .res{color:var(--note);font-size:.9rem;min-height:1.1em;}
 </style>
 
 <div class="sf-wrap">
@@ -58,6 +61,11 @@
       <div id="sfTranscript" class="sf-transcript"></div>
     </div>
     <div class="sf-card">
+      <div class="sf-label" style="margin-top:0">Tester sans micro — extraits synthétisés (espeak-ng)</div>
+      <p class="sf-hint">Cliquez pour lancer la reconnaissance sur un extrait embarqué.</p>
+      <div id="sfSamples" class="sf-samples"></div>
+    </div>
+    <div class="sf-card">
       <div class="sf-label" style="margin-top:0">Le modèle en un coup d'œil</div>
       <div class="sf-metrics" id="sfMetrics"></div>
       <p class="sf-hint" style="margin-top:.8rem">Astuce : dites nettement « do … ré … mi … » en marquant
@@ -79,6 +87,7 @@ __NN_JS__
 "use strict";
 const META = __META_JSON__;
 const METRICS = __METRICS_JSON__;
+const SAMPLES = __SAMPLES_JSON__;
 const WEIGHTS_B64 = __WEIGHTS_JSON__;
 function b64f32(s){const bin=atob(s),buf=new ArrayBuffer(bin.length),by=new Uint8Array(buf);
   for(let i=0;i<bin.length;i++)by[i]=bin.charCodeAt(i);return new Float32Array(buf);}
@@ -129,6 +138,33 @@ async function start(){
 function stop(){if(proc)proc.disconnect();if(stream)stream.getTracks().forEach(t=>t.stop());if(actx)actx.close();
   $("sfMic").disabled=false;$("sfStop").disabled=true;$("sfStatus").textContent="arrêté";}
 $("sfMic").onclick=start;$("sfStop").onclick=stop;
+
+// --- extraits embarqués (data URI) : décodage streaming sans micro ---
+async function decodeSample(dataUri){
+  const buf=await (await fetch(dataUri)).arrayBuffer();
+  const dec=new OfflineAudioContext(1,1,FEAT.sampleRate);   // décodage robuste (headless inclus)
+  const audio=await dec.decodeAudioData(buf);
+  let data=audio.getChannelData(0);
+  if(audio.sampleRate!==FEAT.sampleRate){
+    const off=new OfflineAudioContext(1,Math.ceil(audio.duration*FEAT.sampleRate),FEAT.sampleRate);
+    const s=off.createBufferSource();s.buffer=audio;s.connect(off.destination);s.start();
+    data=(await off.startRendering()).getChannelData(0);}
+  const win=FEAT.windowSamples,hop=Math.round(0.25*FEAT.sampleRate),seq=[];let prev=null;
+  for(let st=0; st+win<=data.length||st===0; st+=hop){
+    const frame=new Float32Array(win);frame.set(data.subarray(st,Math.min(st+win,data.length)));
+    const r=predict(frame);const tok=(r.label!==META.noise_label&&r.conf>=THRESH)?r.label:META.noise_label;
+    if(tok!==prev&&tok!==META.noise_label)seq.push(META.display[tok]);prev=tok;
+    if(st+win>=data.length)break;}
+  return seq;
+}
+(function(){const box=$("sfSamples");
+  (SAMPLES||[]).forEach(s=>{const b=document.createElement("button");b.className="sf-sample";
+    b.innerHTML='<span class="name">▶ '+s.label+'</span><span class="res"></span>';
+    b.onclick=async()=>{b.querySelector(".res").textContent="…";
+      try{new Audio(s.data).play().catch(()=>{});const seq=await decodeSample(s.data);
+        b.querySelector(".res").textContent=seq.length?"→ "+seq.join(" "):"→ (bruit ignoré)";}
+      catch(e){b.querySelector(".res").textContent="erreur: "+e.message;}};
+    box.appendChild(b);});})();
 (function(){const m=$("sfMetrics");const items=[
   ["Notes articulées",(METRICS.clean_accuracy*100).toFixed(1)+"%"],
   ["Voix inconnues",(METRICS.heldout_voices_accuracy*100).toFixed(1)+"%"],

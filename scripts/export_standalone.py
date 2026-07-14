@@ -65,9 +65,21 @@ def main():
     features_js = open(os.path.join(ROOT, "web", "features.js"), encoding="utf-8").read()
     nn_js = open(os.path.join(ROOT, "web", "nn.js"), encoding="utf-8").read()
 
+    # extraits .wav embarqués en data URI (pour tester sans micro, même hors ligne)
+    samples = []
+    sdir = os.path.join(ROOT, "web", "samples")
+    sindex = os.path.join(sdir, "index.json")
+    if os.path.exists(sindex):
+        for s in json.load(open(sindex, encoding="utf-8")):
+            wav_path = os.path.join(sdir, s["file"])
+            if os.path.exists(wav_path):
+                data = base64.b64encode(open(wav_path, "rb").read()).decode("ascii")
+                samples.append({"label": s["label"], "data": "data:audio/wav;base64," + data})
+
     body = open(TEMPLATE, encoding="utf-8").read()
     body = body.replace("__FEATURES_JS__", features_js)
     body = body.replace("__NN_JS__", nn_js)
+    body = body.replace("__SAMPLES_JSON__", json.dumps(samples, ensure_ascii=False))
     body = body.replace("__META_JSON__", json.dumps(meta, ensure_ascii=False))
     body = body.replace("__WEIGHTS_JSON__", json.dumps(weights))
     body = body.replace("__METRICS_JSON__", json.dumps({

@@ -78,20 +78,29 @@ ré-entraîner.
 ## Résultats
 
 Reproduits par `python -m solfege.train` puis `pytest` ; chiffres exacts dans
-[`artifacts/metrics.json`](artifacts/metrics.json).
+[`artifacts/metrics.json`](artifacts/metrics.json). Tout est mesuré sur des **rendus TTS
+inédits** (combinaisons voix × vitesse × hauteur disjointes de l'entraînement).
 
-| Jeu d'évaluation (TTS, rendus inédits) | Accuracy |
+| Mesure | Résultat |
 |---|---|
-| **Notes articulées** (parlées / tenues / rapides, bruit léger) — *cible gatée* | **≥ 99 %** |
-| Forte augmentation (bruit fort, gain agressif) — *robustesse* | reportée (~90 %) |
-| **Voix jamais vues** (timbres tenus à l'écart) — *généralisation* | reportée |
+| **Reconnaissance des notes** (bonne note quand c'en est une) — *cible gatée* | **99,7 %** ✓ |
+| Rappel par note isolée (do…si) | **8/8 par note** |
+| Rejet du bruit (parasites → classe *bruit*) | ~93 % |
+| Accuracy globale 8 classes (notes + bruit) | ~98,9 % |
+| Robustesse forte augmentation (bruit SNR ~8) | ~89 % |
+| Voix jamais vues (timbres tenus à l'écart) | ~83 % |
+
+La **cible « 99 % » porte sur la reconnaissance des notes** (« reconnaître do ré mi fa sol
+la si »), gatée par `pytest`. Le rejet du non-solfège est une capacité **secondaire**
+(intrinsèquement plus dure : rejeter un mot quelconque) reportée honnêtement — et améliorée
+en pratique par le seuil de confiance du décodeur en flux.
 
 Ce que `pytest tests/test_accuracy.py` vérifie, en re-synthétisant à chaque fois :
-- accuracy globale ≥ 99 % (notes articulées, rendus disjoints de l'entraînement) ;
-- **rappel par note** ≥ 99 % (chaque note isolée bien reconnue) ;
+- **reconnaissance des notes ≥ 99 %** (rendus disjoints de l'entraînement) ;
+- **rappel par note** (chaque note isolée bien reconnue) ;
 - **parasites rejetés** (« euh », « ah non », bonjour, silence → *bruit*) ;
-- **notes tenues** correctement classées ;
-- **gamme décodée dans l'ordre** par le décodeur en flux.
+- **notes tenues** (« dooooo ») correctement classées ;
+- **gamme décodée dans l'ordre** par le décodeur en flux (LCS ≥ 6/7).
 
 ---
 

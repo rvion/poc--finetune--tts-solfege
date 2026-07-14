@@ -1,0 +1,6 @@
+{
+  "clean_accuracy": 0.9911538461538462,
+  "hard_accuracy": 0.8915384615384615,
+  "heldout_voices_accuracy": 0.8321759259259259,
+  "test_accuracy": 0.9911538461538462
+}

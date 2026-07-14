@@ -6,7 +6,9 @@ venv/
 # artefacts d'entraînement (le modèle livré vit dans web/, pas ici)
 artifacts_smoke/
 artifacts_test/
+artifacts_v2/
 artifacts/*.pt
+artifacts/verify_cases.json
 *.log
 .DS_Store
 node_modules/

@@ -31,7 +31,7 @@ async function loadModel() {
     setStatus("échec du chargement du modèle : " + e.message);
     console.error(e);
   }
-  fetch("../artifacts/metrics.json").then(r => r.ok ? r.json() : null).then(m => {
+  fetch("metrics.json").then(r => r.ok ? r.json() : null).then(m => {
     if (m) $("metrics").textContent =
       `Précision test (rendus TTS inédits) : ${(m.test_accuracy * 100).toFixed(2)} %` +
       (m.heldout_voices_accuracy != null

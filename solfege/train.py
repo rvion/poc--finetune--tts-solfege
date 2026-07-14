@@ -128,6 +128,11 @@ def train(n_per_class=1500, epochs=25, seed=0, out="artifacts", quiet=False):
     }
     with open(os.path.join(ROOT, out, "metrics.json"), "w", encoding="utf-8") as fh:
         json.dump(metrics, fh, indent=2, ensure_ascii=False)
+    # copie légère pour la démo déployée (web/ seul est publié)
+    web_metrics = {k: metrics[k] for k in
+                   ("clean_accuracy", "hard_accuracy", "heldout_voices_accuracy", "test_accuracy")}
+    with open(os.path.join(ROOT, "web", "metrics.json"), "w", encoding="utf-8") as fh:
+        json.dump(web_metrics, fh, indent=2, ensure_ascii=False)
     return model, acc, conf
 
 

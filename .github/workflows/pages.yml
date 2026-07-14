@@ -5,6 +5,8 @@ name: Fallback GitHub Pages (démo web/)
 # Source = GitHub Actions. URL : https://rvion.github.io/poc--finetune--tts-solfege/
 
 on:
+  push:
+    branches: ["main", "claude/solfege-speech-recognition-jg97rv"]
   workflow_dispatch:
 
 permissions:
